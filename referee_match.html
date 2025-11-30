@@ -420,6 +420,54 @@
             font-weight: bold;
         }
 
+        .score-display {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .score-display h2 {
+            margin: 0 0 10px 0;
+            font-size: 18px;
+            font-weight: normal;
+            opacity: 0.9;
+        }
+
+        .score-numbers {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 20px;
+            margin-top: 10px;
+        }
+
+        .score-team {
+            flex: 1;
+            max-width: 200px;
+        }
+
+        .score-team-name {
+            font-size: 14px;
+            opacity: 0.9;
+            margin-bottom: 5px;
+        }
+
+        .score-value {
+            font-size: 48px;
+            font-weight: bold;
+            line-height: 1;
+        }
+
+        .score-separator {
+            font-size: 36px;
+            font-weight: bold;
+            opacity: 0.8;
+        }
+
         @media (max-width: 600px) {
             .container {
                 padding: 15px;
@@ -452,6 +500,22 @@
             <button class="team-btn peregar" data-team="Перегар" onclick="selectTeam('Перегар')">
                 ⚽ Перегар
             </button>
+        </div>
+
+        <!-- Отображение счета -->
+        <div class="score-display" id="score-display">
+            <h2>Счет матча</h2>
+            <div class="score-numbers">
+                <div class="score-team">
+                    <div class="score-team-name">Авангард</div>
+                    <div class="score-value" id="score-avangard">0</div>
+                </div>
+                <div class="score-separator">:</div>
+                <div class="score-team">
+                    <div class="score-team-name">Перегар</div>
+                    <div class="score-value" id="score-peregar">0</div>
+                </div>
+            </div>
         </div>
 
         <div class="event-types">
@@ -585,8 +649,32 @@
         // Инициализация
         document.addEventListener('DOMContentLoaded', function() {
             setupEventButtons();
+            updateScore();
             updateOutput();
         });
+
+        // Подсчет голов для каждой команды
+        function calculateScore() {
+            let scoreAvangard = 0;
+            let scorePeregar = 0;
+            
+            events.forEach(event => {
+                if (event.type === 'goal' && event.team === 'Авангард') {
+                    scoreAvangard++;
+                } else if (event.type === 'goal' && event.team === 'Перегар') {
+                    scorePeregar++;
+                }
+            });
+            
+            return { avangard: scoreAvangard, peregar: scorePeregar };
+        }
+
+        // Обновление отображения счета
+        function updateScore() {
+            const scores = calculateScore();
+            document.getElementById('score-avangard').textContent = scores.avangard;
+            document.getElementById('score-peregar').textContent = scores.peregar;
+        }
 
         // Выбор команды
         function selectTeam(teamName) {
@@ -838,6 +926,7 @@
 
             events.push(event);
             updateEventsList();
+            updateScore();
             updateOutput();
             resetForm();
         }
@@ -877,6 +966,7 @@
 
             events.push(event);
             updateEventsList();
+            updateScore();
             updateOutput();
             resetForm();
         }
@@ -909,6 +999,7 @@
 
             events.push(event);
             updateEventsList();
+            updateScore();
             updateOutput();
             resetForm();
         }
@@ -942,6 +1033,7 @@
 
             events.push(event);
             updateEventsList();
+            updateScore();
             updateOutput();
             resetForm();
         }
@@ -971,6 +1063,7 @@
         function deleteEvent(index) {
             events.splice(index, 1);
             updateEventsList();
+            updateScore();
             updateOutput();
         }
 
@@ -1002,8 +1095,12 @@
             // Сортируем события по минуте
             const sortedEvents = [...events].sort((a, b) => parseInt(a.minute) - parseInt(b.minute));
 
+            // Подсчитываем счет
+            const scores = calculateScore();
+
             let output = 'ПРОТОКОЛ МАТЧА\n';
             output += 'Авангард - Перегар\n';
+            output += `СЧЕТ: ${scores.avangard} : ${scores.peregar}\n`;
             output += '='.repeat(50) + '\n\n';
 
             sortedEvents.forEach((event, index) => {
@@ -1040,3 +1137,4 @@
     </script>
 </body>
 </html>
+

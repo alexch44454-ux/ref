@@ -1,0 +1,1042 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Судья матча</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #333;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+
+        h1 {
+            text-align: center;
+            color: #667eea;
+            margin-bottom: 30px;
+            font-size: 2em;
+        }
+
+        .event-types {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .event-btn {
+            padding: 20px;
+            border: 3px solid #667eea;
+            background: white;
+            border-radius: 15px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            color: #667eea;
+            transition: all 0.3s;
+            text-align: center;
+        }
+
+        .event-btn:hover {
+            background: #667eea;
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .event-btn.active {
+            background: #667eea;
+            color: white;
+        }
+
+        .event-btn.yellow-card {
+            border-color: #ffc107;
+            color: #ffc107;
+        }
+
+        .event-btn.yellow-card:hover,
+        .event-btn.yellow-card.active {
+            background: #ffc107;
+            color: white;
+        }
+
+        .event-btn.red-card {
+            border-color: #dc3545;
+            color: #dc3545;
+        }
+
+        .event-btn.red-card:hover,
+        .event-btn.red-card.active {
+            background: #dc3545;
+            color: white;
+        }
+
+        .event-btn.goal {
+            border-color: #28a745;
+            color: #28a745;
+        }
+
+        .event-btn.goal:hover,
+        .event-btn.goal.active {
+            background: #28a745;
+            color: white;
+        }
+
+        .event-btn.missed {
+            border-color: #ff9800;
+            color: #ff9800;
+        }
+
+        .event-btn.missed:hover,
+        .event-btn.missed.active {
+            background: #ff9800;
+            color: white;
+        }
+
+        .event-btn.penalty {
+            border-color: #9c27b0;
+            color: #9c27b0;
+        }
+
+        .event-btn.penalty:hover,
+        .event-btn.penalty.active {
+            background: #9c27b0;
+            color: white;
+        }
+
+        .input-section {
+            margin-bottom: 30px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 15px;
+            display: none;
+        }
+
+        .input-section.active {
+            display: block;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        input[type="text"],
+        input[type="number"] {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+
+        input[type="text"]:focus,
+        input[type="number"]:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .player-buttons {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+            gap: 10px;
+        }
+
+        .player-btn {
+            padding: 12px;
+            border: 2px solid #667eea;
+            background: white;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s;
+            text-align: center;
+        }
+
+        .player-btn:hover {
+            background: #667eea;
+            color: white;
+        }
+
+        .player-btn.selected {
+            background: #667eea;
+            color: white;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        button {
+            flex: 1;
+            padding: 15px;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #5a6268;
+        }
+
+        .btn-success {
+            background: #28a745;
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #218838;
+        }
+
+        .btn-danger {
+            background: #dc3545;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #c82333;
+        }
+
+        .events-list {
+            margin-top: 30px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 15px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .event-item {
+            padding: 15px;
+            margin-bottom: 10px;
+            background: white;
+            border-radius: 10px;
+            border-left: 4px solid #667eea;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .event-item.yellow {
+            border-left-color: #ffc107;
+        }
+
+        .event-item.red {
+            border-left-color: #dc3545;
+        }
+
+        .event-item.goal {
+            border-left-color: #28a745;
+        }
+
+        .event-item.missed {
+            border-left-color: #ff9800;
+        }
+
+        .event-item.penalty {
+            border-left-color: #9c27b0;
+        }
+
+        .event-text {
+            flex: 1;
+            font-size: 14px;
+        }
+
+        .delete-btn {
+            background: #dc3545;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+
+        .delete-btn:hover {
+            background: #c82333;
+        }
+
+        .output-section {
+            margin-top: 30px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 15px;
+        }
+
+        .output-text {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            min-height: 150px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            line-height: 1.6;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            border: 2px solid #ddd;
+        }
+
+        .copy-btn {
+            margin-top: 15px;
+            width: 100%;
+            padding: 15px;
+            background: #28a745;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .copy-btn:hover {
+            background: #218838;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(40, 167, 69, 0.4);
+        }
+
+        .copy-btn:active {
+            transform: translateY(0);
+        }
+
+        .help-text {
+            text-align: center;
+            color: #6c757d;
+            font-size: 14px;
+            margin-bottom: 20px;
+        }
+
+        .player-input {
+            margin-bottom: 15px;
+        }
+
+        .team-selector {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 30px;
+            justify-content: center;
+        }
+
+        .team-btn {
+            flex: 1;
+            max-width: 300px;
+            padding: 20px;
+            border: 3px solid #667eea;
+            background: white;
+            border-radius: 15px;
+            cursor: pointer;
+            font-size: 18px;
+            font-weight: bold;
+            color: #667eea;
+            transition: all 0.3s;
+            text-align: center;
+        }
+
+        .team-btn:hover {
+            background: #667eea;
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .team-btn.active {
+            background: #667eea;
+            color: white;
+        }
+
+        .team-btn.avangard {
+            border-color: #28a745;
+            color: #28a745;
+        }
+
+        .team-btn.avangard:hover,
+        .team-btn.avangard.active {
+            background: #28a745;
+            color: white;
+        }
+
+        .team-btn.peregar {
+            border-color: #dc3545;
+            color: #dc3545;
+        }
+
+        .team-btn.peregar:hover,
+        .team-btn.peregar.active {
+            background: #dc3545;
+            color: white;
+        }
+
+        .team-label {
+            font-size: 14px;
+            color: #6c757d;
+            margin-bottom: 8px;
+            font-weight: bold;
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                padding: 15px;
+            }
+
+            h1 {
+                font-size: 1.5em;
+            }
+
+            .event-types {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .player-buttons {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>⚽ Судья матча</h1>
+        <p class="help-text">Выберите команду, событие, заполните данные и добавьте его в протокол</p>
+
+        <!-- Выбор команды -->
+        <div class="team-selector">
+            <button class="team-btn avangard" data-team="Авангард" onclick="selectTeam('Авангард')">
+                ⚽ Авангард
+            </button>
+            <button class="team-btn peregar" data-team="Перегар" onclick="selectTeam('Перегар')">
+                ⚽ Перегар
+            </button>
+        </div>
+
+        <div class="event-types">
+            <button class="event-btn yellow-card" data-type="yellow-card">
+                🟨 Желтая карточка
+            </button>
+            <button class="event-btn red-card" data-type="red-card">
+                🟥 Красная карточка
+            </button>
+            <button class="event-btn goal" data-type="goal">
+                ⚽ Гол
+            </button>
+            <button class="event-btn missed" data-type="missed">
+                ❌ Незабитый гол
+            </button>
+            <button class="event-btn penalty" data-type="penalty">
+                🎯 Пенальти
+            </button>
+        </div>
+
+        <!-- Секция для карточек -->
+        <div id="card-section" class="input-section">
+            <div class="input-group">
+                <label id="card-team-label">Выберите игрока:</label>
+                <div class="player-buttons" id="card-players"></div>
+            </div>
+            <div class="input-group">
+                <label>Минута:</label>
+                <input type="number" id="card-minute" min="0" max="120" placeholder="Например: 45">
+            </div>
+            <div class="action-buttons">
+                <button class="btn-primary" onclick="addCardEvent()">Добавить событие</button>
+                <button class="btn-secondary" onclick="resetForm()">Отмена</button>
+            </div>
+        </div>
+
+        <!-- Секция для гола -->
+        <div id="goal-section" class="input-section">
+            <div class="input-group">
+                <label id="goal-team-label">Кто забил:</label>
+                <div class="player-buttons" id="goal-scorer"></div>
+            </div>
+            <div class="input-group">
+                <label>Кто отдал передачу:</label>
+                <div class="player-buttons" id="goal-assist"></div>
+            </div>
+            <div class="input-group">
+                <label>Минута:</label>
+                <input type="number" id="goal-minute" min="0" max="120" placeholder="Например: 23">
+            </div>
+            <div class="action-buttons">
+                <button class="btn-success" onclick="addGoalEvent()">Добавить гол</button>
+                <button class="btn-secondary" onclick="resetForm()">Отмена</button>
+            </div>
+        </div>
+
+        <!-- Секция для незабитого гола -->
+        <div id="missed-section" class="input-section">
+            <div class="input-group">
+                <label id="missed-team-label">Кто не забил:</label>
+                <div class="player-buttons" id="missed-player"></div>
+            </div>
+            <div class="input-group">
+                <label>Минута:</label>
+                <input type="number" id="missed-minute" min="0" max="120" placeholder="Например: 67">
+            </div>
+            <div class="action-buttons">
+                <button class="btn-primary" onclick="addMissedEvent()">Добавить событие</button>
+                <button class="btn-secondary" onclick="resetForm()">Отмена</button>
+            </div>
+        </div>
+
+        <!-- Секция для пенальти -->
+        <div id="penalty-section" class="input-section">
+            <div class="input-group">
+                <label>Имя игрока:</label>
+                <input type="text" id="penalty-player" placeholder="Введите фамилию игрока">
+            </div>
+            <div class="input-group">
+                <label>Минута:</label>
+                <input type="number" id="penalty-minute" min="0" max="120" placeholder="Например: 78">
+            </div>
+            <div class="action-buttons">
+                <button class="btn-primary" onclick="addPenaltyEvent()">Добавить пенальти</button>
+                <button class="btn-secondary" onclick="resetForm()">Отмена</button>
+            </div>
+        </div>
+
+        <!-- Список событий -->
+        <div class="events-list" id="events-list">
+            <p style="text-align: center; color: #6c757d;">События пока не добавлены</p>
+        </div>
+
+        <!-- Вывод результата -->
+        <div class="output-section">
+            <h2 style="margin-bottom: 15px; color: #667eea;">📋 Протокол матча</h2>
+            <div class="output-text" id="output-text"></div>
+            <button class="copy-btn" onclick="copyToClipboard()">📋 Копировать протокол</button>
+        </div>
+    </div>
+
+    <script>
+        // Глобальные переменные
+        let currentEventType = null;
+        let selectedTeam = null;
+        let selectedPlayer = null;
+        let selectedScorer = null;
+        let selectedAssist = null;
+        let selectedMissedPlayer = null;
+        let events = [];
+
+        // Список игроков Авангарда
+        const avangardPlayers = [
+            'Галицкий', 'Дибиков', 'Ильин', 'Крючков', 'Куликов',
+            'Летенков', 'Лопатин', 'Маннинен', 'Румянцев', 'Сафарян',
+            'Сладек', 'Тихонов Б.', 'Тихонов Т.', 'Черников', 'Шикалов'
+        ];
+
+        // Список игроков Перегара
+        const peregarPlayers = [
+            'Аникин', 'Белокрылов', 'Воронин', 'Дадашов', 'Декусарэ',
+            'Джафаров Н.', 'Джафаров Ф.', 'Джураев', 'Еляков', 'Новиков',
+            'Овчинников', 'Орлов', 'Розанов', 'Соколов', 'Староверов',
+            'Стрельников', 'Сулейманов', 'Танчук', 'Турамуратов', 'Харьков',
+            'Хиясов', 'Чепчин', 'Черенков', 'Черенцов', 'Шишов'
+        ];
+
+        // Текущий список игроков для отображения
+        let currentPlayers = [];
+
+        // Инициализация
+        document.addEventListener('DOMContentLoaded', function() {
+            setupEventButtons();
+            updateOutput();
+        });
+
+        // Выбор команды
+        function selectTeam(teamName) {
+            selectedTeam = teamName;
+            
+            // Обновление визуального состояния кнопок команд
+            document.querySelectorAll('.team-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            document.querySelector(`[data-team="${teamName}"]`).classList.add('active');
+            
+            // Обновление списка игроков в зависимости от команды
+            if (teamName === 'Авангард') {
+                currentPlayers = avangardPlayers;
+            } else if (teamName === 'Перегар') {
+                currentPlayers = peregarPlayers.length > 0 ? peregarPlayers : [];
+            }
+            
+            // Обновление списков игроков
+            updatePlayerLists();
+            
+            // Закрытие всех секций при смене команды
+            document.querySelectorAll('.input-section').forEach(section => {
+                section.classList.remove('active');
+            });
+            document.querySelectorAll('.event-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            resetSelections();
+            
+            // Обновление лейблов с названием команды
+            updateTeamLabels(teamName);
+        }
+
+        // Обновление лейблов с названием команды
+        function updateTeamLabels(teamName) {
+            const labels = [
+                document.getElementById('card-team-label'),
+                document.getElementById('goal-team-label'),
+                document.getElementById('missed-team-label')
+            ];
+            
+            labels.forEach(label => {
+                if (label) {
+                    const baseText = label.textContent.split(' (')[0];
+                    label.textContent = `${baseText} (${teamName}):`;
+                }
+            });
+        }
+
+        // Настройка кнопок событий
+        function setupEventButtons() {
+            const eventButtons = document.querySelectorAll('.event-btn');
+            eventButtons.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const type = this.dataset.type;
+                    selectEventType(type);
+                });
+            });
+        }
+
+        // Выбор типа события
+        function selectEventType(type) {
+            // Сброс предыдущего выбора
+            document.querySelectorAll('.event-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            document.querySelectorAll('.input-section').forEach(section => {
+                section.classList.remove('active');
+            });
+
+            // Активация выбранного типа
+            const btn = document.querySelector(`[data-type="${type}"]`);
+            if (btn) {
+                btn.classList.add('active');
+                currentEventType = type;
+                showInputSection(type);
+            }
+        }
+
+        // Показать соответствующую секцию ввода
+        function showInputSection(type) {
+            // Проверяем, выбрана ли команда
+            if (!selectedTeam) {
+                alert('Сначала выберите команду!');
+                document.querySelectorAll('.event-btn').forEach(btn => {
+                    btn.classList.remove('active');
+                });
+                return;
+            }
+
+            const sections = {
+                'yellow-card': 'card-section',
+                'red-card': 'card-section',
+                'goal': 'goal-section',
+                'missed': 'missed-section',
+                'penalty': 'penalty-section'
+            };
+
+            const sectionId = sections[type];
+            if (sectionId) {
+                document.getElementById(sectionId).classList.add('active');
+                resetSelections();
+            }
+        }
+
+        // Обновление списков игроков
+        function updatePlayerLists() {
+            if (!selectedTeam) {
+                // Если команда не выбрана
+                ['card-players', 'goal-scorer', 'goal-assist', 'missed-player'].forEach(id => {
+                    const div = document.getElementById(id);
+                    if (div) {
+                        div.innerHTML = '<p style="text-align: center; color: #6c757d; padding: 10px;">Сначала выберите команду</p>';
+                    }
+                });
+                return;
+            }
+
+            if (currentPlayers.length === 0) {
+                // Если команда выбрана, но игроков нет (например, Перегар)
+                ['card-players', 'goal-scorer', 'goal-assist', 'missed-player'].forEach(id => {
+                    const div = document.getElementById(id);
+                    if (div) {
+                        div.innerHTML = `<p style="text-align: center; color: #dc3545; padding: 10px;">Игроки команды "${selectedTeam}" еще не добавлены</p>`;
+                    }
+                });
+                return;
+            }
+
+            initializePlayers();
+        }
+
+        // Инициализация кнопок игроков
+        function initializePlayers() {
+            if (!currentPlayers || currentPlayers.length === 0) {
+                return;
+            }
+
+            // Для карточек
+            const cardPlayersDiv = document.getElementById('card-players');
+            cardPlayersDiv.innerHTML = '';
+            currentPlayers.forEach(player => {
+                const btn = createPlayerButton(player, 'card');
+                cardPlayersDiv.appendChild(btn);
+            });
+
+            // Для забивающих
+            const scorerDiv = document.getElementById('goal-scorer');
+            scorerDiv.innerHTML = '';
+            currentPlayers.forEach(player => {
+                const btn = createPlayerButton(player, 'scorer');
+                scorerDiv.appendChild(btn);
+            });
+
+            // Для отдающих передачи
+            const assistDiv = document.getElementById('goal-assist');
+            assistDiv.innerHTML = '';
+            currentPlayers.forEach(player => {
+                const btn = createPlayerButton(player, 'assist');
+                assistDiv.appendChild(btn);
+            });
+
+            // Для незабивших
+            const missedDiv = document.getElementById('missed-player');
+            missedDiv.innerHTML = '';
+            currentPlayers.forEach(player => {
+                const btn = createPlayerButton(player, 'missed');
+                missedDiv.appendChild(btn);
+            });
+        }
+
+        // Создание кнопки игрока
+        function createPlayerButton(player, type) {
+            const btn = document.createElement('button');
+            btn.className = 'player-btn';
+            btn.textContent = player;
+            btn.onclick = function(e) {
+                selectPlayer(player, type, e.target);
+            };
+            return btn;
+        }
+
+        // Выбор игрока
+        function selectPlayer(player, type, buttonElement) {
+            // Сброс предыдущих выделений в соответствующей группе
+            let buttons;
+            if (type === 'card') {
+                buttons = document.querySelectorAll('#card-players .player-btn');
+                selectedPlayer = player;
+            } else if (type === 'scorer') {
+                buttons = document.querySelectorAll('#goal-scorer .player-btn');
+                selectedScorer = player;
+                selectedAssist = null; // Сброс передачи при смене бомбардира
+                document.querySelectorAll('#goal-assist .player-btn').forEach(b => {
+                    b.classList.remove('selected');
+                });
+            } else if (type === 'assist') {
+                buttons = document.querySelectorAll('#goal-assist .player-btn');
+                selectedAssist = player;
+            } else if (type === 'missed') {
+                buttons = document.querySelectorAll('#missed-player .player-btn');
+                selectedMissedPlayer = player;
+            }
+
+            if (buttons && buttonElement) {
+                buttons.forEach(b => b.classList.remove('selected'));
+                buttonElement.classList.add('selected');
+            }
+        }
+
+        // Сброс выделений
+        function resetSelections() {
+            selectedPlayer = null;
+            selectedScorer = null;
+            selectedAssist = null;
+            selectedMissedPlayer = null;
+            document.querySelectorAll('.player-btn').forEach(btn => {
+                btn.classList.remove('selected');
+            });
+        }
+
+        // Добавить событие с карточкой
+        function addCardEvent() {
+            if (!selectedTeam) {
+                alert('Сначала выберите команду!');
+                return;
+            }
+
+            if (!selectedPlayer) {
+                alert('Выберите игрока!');
+                return;
+            }
+
+            const minute = document.getElementById('card-minute').value;
+            if (!minute) {
+                alert('Введите минуту!');
+                return;
+            }
+
+            const cardType = currentEventType === 'yellow-card' ? 'Желтая карточка' : 'Красная карточка';
+            const event = {
+                type: currentEventType,
+                team: selectedTeam,
+                player: selectedPlayer,
+                minute: minute,
+                text: `${cardType} - ${selectedTeam}: ${selectedPlayer} (${minute} мин)`
+            };
+
+            events.push(event);
+            updateEventsList();
+            updateOutput();
+            resetForm();
+        }
+
+        // Добавить гол
+        function addGoalEvent() {
+            if (!selectedTeam) {
+                alert('Сначала выберите команду!');
+                return;
+            }
+
+            if (!selectedScorer) {
+                alert('Выберите игрока, который забил!');
+                return;
+            }
+
+            const minute = document.getElementById('goal-minute').value;
+            if (!minute) {
+                alert('Введите минуту!');
+                return;
+            }
+
+            let text = `Гол - ${selectedTeam}: ${selectedScorer}`;
+            if (selectedAssist) {
+                text += ` (передача: ${selectedAssist})`;
+            }
+            text += ` (${minute} мин)`;
+
+            const event = {
+                type: 'goal',
+                team: selectedTeam,
+                scorer: selectedScorer,
+                assist: selectedAssist || null,
+                minute: minute,
+                text: text
+            };
+
+            events.push(event);
+            updateEventsList();
+            updateOutput();
+            resetForm();
+        }
+
+        // Добавить незабитый гол
+        function addMissedEvent() {
+            if (!selectedTeam) {
+                alert('Сначала выберите команду!');
+                return;
+            }
+
+            if (!selectedMissedPlayer) {
+                alert('Выберите игрока!');
+                return;
+            }
+
+            const minute = document.getElementById('missed-minute').value;
+            if (!minute) {
+                alert('Введите минуту!');
+                return;
+            }
+
+            const event = {
+                type: 'missed',
+                team: selectedTeam,
+                player: selectedMissedPlayer,
+                minute: minute,
+                text: `Незабитый гол - ${selectedTeam}: ${selectedMissedPlayer} (${minute} мин)`
+            };
+
+            events.push(event);
+            updateEventsList();
+            updateOutput();
+            resetForm();
+        }
+
+        // Добавить пенальти
+        function addPenaltyEvent() {
+            if (!selectedTeam) {
+                alert('Сначала выберите команду!');
+                return;
+            }
+
+            const player = document.getElementById('penalty-player').value.trim();
+            if (!player) {
+                alert('Введите имя игрока!');
+                return;
+            }
+
+            const minute = document.getElementById('penalty-minute').value;
+            if (!minute) {
+                alert('Введите минуту!');
+                return;
+            }
+
+            const event = {
+                type: 'penalty',
+                team: selectedTeam,
+                player: player,
+                minute: minute,
+                text: `Пенальти - ${selectedTeam}: ${player} (${minute} мин)`
+            };
+
+            events.push(event);
+            updateEventsList();
+            updateOutput();
+            resetForm();
+        }
+
+        // Обновить список событий
+        function updateEventsList() {
+            const listDiv = document.getElementById('events-list');
+            
+            if (events.length === 0) {
+                listDiv.innerHTML = '<p style="text-align: center; color: #6c757d;">События пока не добавлены</p>';
+                return;
+            }
+
+            listDiv.innerHTML = '';
+            events.forEach((event, index) => {
+                const item = document.createElement('div');
+                item.className = `event-item ${event.type}`;
+                item.innerHTML = `
+                    <span class="event-text">${event.text}</span>
+                    <button class="delete-btn" onclick="deleteEvent(${index})">Удалить</button>
+                `;
+                listDiv.appendChild(item);
+            });
+        }
+
+        // Удалить событие
+        function deleteEvent(index) {
+            events.splice(index, 1);
+            updateEventsList();
+            updateOutput();
+        }
+
+        // Сброс формы
+        function resetForm() {
+            currentEventType = null;
+            document.querySelectorAll('.event-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            document.querySelectorAll('.input-section').forEach(section => {
+                section.classList.remove('active');
+            });
+            document.querySelectorAll('input').forEach(input => {
+                input.value = '';
+            });
+            resetSelections();
+            // Команда НЕ сбрасывается - она остается выбранной
+        }
+
+        // Обновить вывод протокола
+        function updateOutput() {
+            const outputDiv = document.getElementById('output-text');
+            
+            if (events.length === 0) {
+                outputDiv.textContent = 'Протокол пуст. Добавьте события матча.';
+                return;
+            }
+
+            // Сортируем события по минуте
+            const sortedEvents = [...events].sort((a, b) => parseInt(a.minute) - parseInt(b.minute));
+
+            let output = 'ПРОТОКОЛ МАТЧА\n';
+            output += 'Авангард - Перегар\n';
+            output += '='.repeat(50) + '\n\n';
+
+            sortedEvents.forEach((event, index) => {
+                output += `${index + 1}. ${event.text}\n`;
+            });
+
+            outputDiv.textContent = output;
+        }
+
+        // Копировать в буфер обмена
+        function copyToClipboard() {
+            const outputText = document.getElementById('output-text').textContent;
+            
+            if (!outputText || outputText === 'Протокол пуст. Добавьте события матча.') {
+                alert('Нет данных для копирования!');
+                return;
+            }
+
+            navigator.clipboard.writeText(outputText).then(() => {
+                const btn = document.querySelector('.copy-btn');
+                const originalText = btn.textContent;
+                btn.textContent = '✓ Скопировано!';
+                btn.style.background = '#28a745';
+                
+                setTimeout(() => {
+                    btn.textContent = originalText;
+                    btn.style.background = '#28a745';
+                }, 2000);
+            }).catch(err => {
+                console.error('Ошибка копирования:', err);
+                alert('Ошибка копирования. Попробуйте выделить текст вручную.');
+            });
+        }
+    </script>
+</body>
+</html>
